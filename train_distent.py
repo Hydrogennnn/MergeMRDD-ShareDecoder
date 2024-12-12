@@ -30,6 +30,7 @@ WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 def valid_by_kmeans(val_dataloader, model, use_ddp, device, noise_prob=None):
     targets = []
     consist_reprs = []
+    all_concate_reprs = []
     vspecific_reprs = defaultdict(list)
     concate_reprs = defaultdict(list)
     for Xs, target in val_dataloader:
@@ -39,12 +40,13 @@ def valid_by_kmeans(val_dataloader, model, use_ddp, device, noise_prob=None):
             # print(Xs[0].shape)
             Xs = [x.to(device) for x in Xs]
         if use_ddp:
-            consist_repr_, vspecific_repr_, concate_repr_ = model.module.all_features(Xs)
+            consist_repr_, vspecific_repr_, concate_repr_, all_concate = model.module.all_features(Xs)
         else:
             consist_repr_, vspecific_repr_, concate_repr_ = model.all_features(Xs)   # Tensor, list, list
 
         targets.append(target)
         consist_reprs.append(consist_repr_.detach().cpu())
+        all_concate_reprs.append(all_concate.detach().cpu())
         # vspecific_reprs.append(vspecific_repr_.detach().cpu())
         # concate_reprs.append(concate_repr_.detach().cpu())
         for i, (si, c_si) in enumerate(zip(vspecific_repr_, concate_repr_)):
@@ -53,6 +55,7 @@ def valid_by_kmeans(val_dataloader, model, use_ddp, device, noise_prob=None):
 
     targets = torch.concat(targets, dim=-1).numpy()
     consist_reprs = torch.vstack(consist_reprs).detach().cpu().numpy()
+    all_concate_reprs = torch.vstack(all_concate_reprs).detach().cpu().numpy()
     # vspecific_reprs = torch.vstack(vspecific_reprs).detach().cpu().numpy()
     # concate_reprs = torch.vstack(concate_reprs).detach().cpu().numpy()
     result = {}
@@ -62,6 +65,12 @@ def valid_by_kmeans(val_dataloader, model, use_ddp, device, noise_prob=None):
     result['consist-ari'] = ari
     result['consist-p'] = p
     result['consist-fscore'] = fscore
+    acc, nmi, ari, _, p, fscore = clustering_by_representation(all_concate_reprs, targets)
+    result['all-concate-acc'] = acc
+    result['all-concate-nmi'] = nmi
+    result['all-concate-ari'] = ari
+    result['all-concate-p'] = p
+    result['all-concate-fscore'] = fscore
 
     for key, spe_repr in vspecific_reprs.items():
         spe_repr = torch.vstack(spe_repr).detach().cpu().numpy()
