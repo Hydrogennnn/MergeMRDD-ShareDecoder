@@ -11,7 +11,7 @@ class IVAE(nn.Module):
         self.views = args.views
         # m unimodal vae
         for i in range(self.args.views):
-            self.__setattr__(f"venc_{i + 1}", ViewSpecificAE(c_enable=False,
+            self.__setattr__(f"venc_{i + 1}", ViewSpecificAE(c_enable=True,
                                                              v_dim=self.args.vspecific.v_dim,
                                                              latent_ch=self.args.vspecific.latent_ch,
                                                              num_res_blocks=self.args.vspecific.num_res_blocks,

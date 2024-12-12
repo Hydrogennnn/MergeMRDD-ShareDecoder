@@ -66,16 +66,16 @@ class ConsistencyAE(nn.Module):
                                 double_z=False)
         # self._encoder = resnet18(pretrained=False, in_channel=self.in_channel, output_layer=6)
     
-        self.decoders = nn.ModuleList([Decoder(hidden_dim=self.basic_hidden_dim,
-                                out_channels=self.in_channel,
-                                in_channels=self.latent_ch,
-                                z_channels=self.latent_ch,
-                                ch_mult=self.ch_mult,
-                                num_res_blocks=self.num_res_blocks,
-                                resolution=1,
-                                use_attn=False,
-                                attn_resolutions=None,
-                                double_z=False) for _ in range(self.views)])
+        # self.decoders = nn.ModuleList([Decoder(hidden_dim=self.basic_hidden_dim,
+        #                         out_channels=self.in_channel,
+        #                         in_channels=self.latent_ch,
+        #                         z_channels=self.latent_ch,
+        #                         ch_mult=self.ch_mult,
+        #                         num_res_blocks=self.num_res_blocks,
+        #                         resolution=1,
+        #                         use_attn=False,
+        #                         attn_resolutions=None,
+        #                         double_z=False) for _ in range(self.views)])
 
 
         self.moe = Moe(views=self.views, input_dim=(self.latent_ch * self.block_size **2), output_dim=2*self.c_dim)
@@ -182,39 +182,17 @@ class ConsistencyAE(nn.Module):
         return_details = {}
         return_details['cons_kld_loss'] = kld_loss.item()
         z = self.cont_reparameterize(mu, logvar)  # B x c_dim
-        recon_loss = 0.
-        for i, x in enumerate(Xs):
-            recons = self.decode(z, i) # result of reconstruction
-            sub_recon_loss = F.mse_loss(x, recons, reduction='sum')
-            return_details[f"cons_v{i}_recon_loss"] = sub_recon_loss.item()
-            recon_loss += sub_recon_loss
-
-        return_details[f"cons_recon_loss"] = recon_loss.item()
-        return_details[f"cons_total_loss"] = recon_loss.item() + kld_loss.item()
-        return kld_loss+recon_loss, return_details
-
-        # else:
-        #     beta = self.encode(Xs_masked)
-        #     kld_loss = self.disc_loss(beta, epoch)
-        #
-        #     z = self.disc_reparameterize(beta)
-            
-        # recons = self.decode(z)
         # recon_loss = 0.
-        # return_details = {}
-        # for v, (x, recon) in enumerate(zip(Xs, recons)):
-        #     sub_loss = F.mse_loss(x, recon, reduction='sum')
-        #     return_details[f'v{v+1}-loss'] = sub_loss.item()
-        #     recon_loss += sub_loss
+        # for i, x in enumerate(Xs):
+        #     recons = self.decode(z, i) # result of reconstruction
+        #     sub_recon_loss = F.mse_loss(x, recons, reduction='sum')
+        #     return_details[f"cons_v{i}_recon_loss"] = sub_recon_loss.item()
+        #     recon_loss += sub_recon_loss
         #
-        # # loss = self.alpha * recon_loss + kld_loss
-        # loss = kld_loss + recon_loss
-        # return_details['total_loss'] = loss.item()
-        # return_details['recon_loss'] = recon_loss.item()
-        # return_details['kld_loss'] = kld_loss.item()
-        # return_details['temparature'] = self.temp
-        #
-        # return loss, return_details
+        # return_details[f"cons_recon_loss"] = recon_loss.item()
+        # return_details[f"cons_total_loss"] = recon_loss.item() + kld_loss.item()
+        # return kld_loss+recon_loss, return_details
+        return kld_loss, return_details
     
     
     def con_loss(self, mu, log_var):

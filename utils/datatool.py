@@ -810,7 +810,7 @@ if __name__ == '__main__':
         transforms.ToTensor()])
     dataset = COIL100Dataset(train=False, views=2, transform=trans, root="./MyData")
     Xs, _ = dataset[0]
-    Xs = [add_sp_noise(x, 0.15) for x in Xs]
+    Xs = [add_sp_noise(x, 0.05) for x in Xs]
     to_pil_img = transforms.ToPILImage()
     img = [to_pil_img(x) for x in Xs]
     for x in img:

@@ -245,17 +245,18 @@ if __name__ == '__main__':
 
         show_losses = {k: np.mean(v) for k, v in cur_loss.items()}
 
+        batch_loss = show_losses['total_loss']
         if use_wandb:
             wandb.log(show_losses, step=epoch)
-        smartprint(f"[Epoch {epoch}] | Train loss:{loss.item()}")
+        smartprint(f"[Epoch {epoch}] | Train loss:{batch_loss.item()}")
         for k, v in show_losses.items():
             smartprint(f"{k}:{v}")
 
         # Check on main process
         if LOCAL_RANK == 0 or LOCAL_RANK == -1:
-            if loss <= best_loss:
-                best_loss = loss
-                best_model_path = os.path.join(result_dir, f"best-{int(loss.item())}-{epoch}-{seed}.pth")
+            if batch_loss <= best_loss:
+                best_loss = batch_loss
+                best_model_path = os.path.join(result_dir, f"best-{int(batch_loss.item())}-{epoch}-{seed}.pth")
                 if use_ddp:
                     torch.save(model.module.state_dict(), best_model_path)
                 else:
