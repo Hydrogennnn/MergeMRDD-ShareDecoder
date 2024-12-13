@@ -15,7 +15,7 @@ import numpy as np
 import wandb
 from scipy.optimize import linear_sum_assignment
 from configs.basic_cfg import get_cfg
-from models.Reverse_MRDD import RMRDD
+from models.MergeMRDD import MMRDD
 from sklearn import metrics
 from utils.datatool import (get_val_transformations,
                             add_sp_noise,
@@ -87,6 +87,7 @@ def classification_metric(y_true, y_pred, average='macro', verbose=True, decimal
 def extract_features(val_dataloader, model, device, noise_prob=None):
     targets = []
     consist_reprs = []
+    all_concate_reprs = []
     vspecific_reprs = defaultdict(list)
     concate_reprs = defaultdict(list)
     for Xs, target in val_dataloader:
@@ -96,9 +97,10 @@ def extract_features(val_dataloader, model, device, noise_prob=None):
 
             Xs = [x.to(device) for x in Xs]
 
-        consist_repr_, vspecific_repr_, concate_repr_ = model.all_features(Xs)  # Tensor, list, list
+        consist_repr_, vspecific_repr_, concate_repr_, all_concate = model.all_features(Xs)  # Tensor, list, list
         targets.append(target)
         consist_reprs.append(consist_repr_.detach().cpu())
+        all_concate_reprs.append(all_concate.detach().cpu())
         # vspecific_reprs.append(vspecific_repr_.detach().cpu())
         # concate_reprs.append(concate_repr_.detach().cpu())
         for i, (si, c_si) in enumerate(zip(vspecific_repr_, concate_repr_)):
@@ -107,11 +109,12 @@ def extract_features(val_dataloader, model, device, noise_prob=None):
 
     targets = torch.concat(targets, dim=-1).numpy()
     consist_reprs = torch.vstack(consist_reprs).detach().cpu().numpy()
+    all_concate_reprs = torch.vstack(all_concate_reprs).detach().cpu().numpy()
     for key in vspecific_reprs:
         vspecific_reprs[key] = torch.vstack(vspecific_reprs[key]).detach().cpu().numpy()
     for key in concate_reprs:
         concate_reprs[key] = torch.vstack(concate_reprs[key]).detach().cpu().numpy()
-    return consist_reprs, vspecific_reprs, concate_reprs, targets
+    return consist_reprs, vspecific_reprs, concate_reprs, all_concate_reprs, targets
 
 
 def parse_args():
@@ -153,9 +156,8 @@ def main():
     need_classification = True
 
     model_path = config.eval.model_path
-    model = RMRDD(
+    model = MMRDD(
         config=config,
-        specific_encoder_path=config.vspecific.model_path,
         device=device
     )
     model.load_state_dict(torch.load(model_path, map_location='cpu'))
@@ -167,10 +169,11 @@ def main():
 
     model.eval()
     print("[Evaluation on full modal]")
-    consistency, vspecific, concate, labels = extract_features(train_dataloader, model, device)
+    consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device)
     print('eval on consist...')
     report(run_times, n_clusters, need_classification, labels, consistency)
-
+    print('eval on all concate...')
+    report(run_times, n_clusters, need_classification, labels, all_concate)
     for key in vspecific:
         print(f'eval on {key}...')
         report(run_times, n_clusters, need_classification, labels, vspecific[key])
@@ -180,10 +183,11 @@ def main():
         report(run_times, n_clusters, need_classification, labels, concate[key])
 
     print("[Evaluation on modal missing]")
-    consistency, vspecific, concate, labels = extract_features(mask_train_dataloader, model, device)
+    consistency, vspecific, concate, all_concate, labels = extract_features(mask_train_dataloader, model, device)
     print('eval on consist...')
     report(run_times, n_clusters, need_classification, labels, consistency)
-
+    print('eval on all concate...')
+    report(run_times, n_clusters, need_classification, labels, all_concate)
     for key in vspecific:
         print(f'eval on {key}...')
         report(run_times, n_clusters, need_classification, labels, vspecific[key])
@@ -193,10 +197,11 @@ def main():
         report(run_times, n_clusters, need_classification, labels, concate[key])
 
     print("[Evaluation on Salt-Pepper noise]")
-    consistency, vspecific, concate, labels = extract_features(train_dataloader, model, device, noise_prob=config.eval.noise_prob)
+    consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device, noise_prob=config.eval.noise_prob)
     print('eval on consist...')
     report(run_times, n_clusters, need_classification, labels, consistency)
-
+    print('eval on all concate...')
+    report(run_times, n_clusters, need_classification, labels, all_concate)
     for key in vspecific:
         print(f'eval on {key}...')
         report(run_times, n_clusters, need_classification, labels, vspecific[key])
