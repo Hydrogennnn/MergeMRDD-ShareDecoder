@@ -89,7 +89,8 @@ class MMRDD(nn.Module):
         spe_repr = self.vspecific_features(Xs)  # list
         # V = spe_repr[self.config.vspecific.best_view]
         concat_list = [torch.cat([C, v], dim=-1) for v in spe_repr]  # list
-        return C, spe_repr, concat_list
+        all_concate = torch.cat([C, torch.cat(spe_repr, dim=1)], dim=1)
+        return C, spe_repr, concat_list, all_concate
 
     @torch.no_grad()
     def specific_latent_dist(self, x, v):  # distribution of view v
