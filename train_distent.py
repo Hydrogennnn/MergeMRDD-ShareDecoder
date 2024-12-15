@@ -149,7 +149,7 @@ if __name__ == '__main__':
     #Modify config by args
     if config.train.mask_view and args.mask_view_ratio is not None:
         config.train.mask_view_ratio = args.mask_view_ratio
-    if args.train.mask_ratio is not None:
+    if args.mask_ratio is not None:
         config.train.masked_ratio = args.mask_ratio
     if args.epochs is not None:
         config.train.epochs = args.epochs
