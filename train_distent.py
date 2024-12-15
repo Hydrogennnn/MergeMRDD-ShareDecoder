@@ -104,6 +104,9 @@ def get_device(args, local_rank):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config-file', '-f', type=str, help='Config File')
+    parser.add_argument('--mask-view-ratio', '-mv', type=float, help='Mask View Ratio')
+    parser.add_argument('--mask-ratio', '-m', type=float, help='Pixel Mask Ratio')
+    parser.add_argument('--epochs', type=int, help='Training Epochs')
     args = parser.parse_args()
     return args
 
@@ -143,6 +146,14 @@ def smartprint(*msg):
 if __name__ == '__main__':
     args = parse_args()
     config = get_cfg(args.config_file)
+    #Modify config by args
+    if config.train.mask_view and args.mask_view_ratio is not None:
+        config.train.mask_view_ratio = args.mask_view_ratio
+    if args.train.mask_ratio is not None:
+        config.train.masked_ratio = args.mask_ratio
+    if args.epochs is not None:
+        config.train.epochs = args.epochs
+
 
     use_ddp = config.train.use_ddp
     use_wandb = config.wandb
