@@ -21,7 +21,7 @@ train:
   batch_size: 512
   optim: "adamw"
   num_workers: 8
-  lr: 0.0005
+  lr: 0.0001
   evaluate: 1
   use_ddp: false
   scheduler: 'consine'
@@ -70,6 +70,6 @@ valid_augmentation:
 
 eval:
   noise_prob: 0.1
-  model_path: ''
+  model_path: './experiments/fmnist/fmnist-Sch-v10-c10-m0.7-mv0.3-8527/best-2710-180-8527.pth'
   modal_missing_ratio: 0.5
 
