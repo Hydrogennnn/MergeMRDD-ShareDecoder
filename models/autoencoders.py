@@ -206,7 +206,7 @@ class AttnBlock(nn.Module):
 
 class Encoder(nn.Module):
     def __init__(self, *, hidden_dim, in_channels, ch_mult=(1, 2, 4, 8), num_res_blocks,
-                 attn_resolutions, dropout=0.0, resamp_with_conv=True,
+                 attn_resolutions, dropout=0.2, resamp_with_conv=True,
                  resolution, z_channels, double_z=True, use_attn=False, **ignore_kwargs):
         super().__init__()
         self.hidden_dim = hidden_dim
@@ -305,7 +305,7 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(self, *, hidden_dim, out_channels, ch_mult=(1, 2, 4, 8), num_res_blocks,
-                 attn_resolutions, dropout=0.0, resamp_with_conv=True, in_channels,
+                 attn_resolutions, dropout=0.2, resamp_with_conv=True, in_channels,
                  resolution, z_channels, give_pre_end=False, use_attn=False, **ignorekwargs):
         super().__init__()
         self.hidden_dim = hidden_dim
