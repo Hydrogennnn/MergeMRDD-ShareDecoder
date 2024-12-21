@@ -107,6 +107,7 @@ def parse_args():
     parser.add_argument('--mask-view-ratio', '-mv', type=float, help='Mask View Ratio')
     parser.add_argument('--mask-ratio', '-m', type=float, help='Pixel Mask Ratio')
     parser.add_argument('--epochs', type=int, help='Training Epochs')
+    parser.add_argument('--device', type=int, help='Cuda Device')
     args = parser.parse_args()
     return args
 
@@ -153,6 +154,8 @@ if __name__ == '__main__':
         config.train.masked_ratio = args.mask_ratio
     if args.epochs is not None:
         config.train.epochs = args.epochs
+    if args.device is not None:
+        config.train.devices = [args.device]
 
 
     use_ddp = config.train.use_ddp
