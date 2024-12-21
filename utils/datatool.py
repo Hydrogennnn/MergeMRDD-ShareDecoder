@@ -349,7 +349,7 @@ class EdgeMNISTDataset(torchvision.datasets.MNIST):
                  target_transform=None,
                  download=False,
                  views=None,
-                 mask_view=False,
+                 mask_view:bool=False,
                  random_indices=None,
                  random_view=None
                  ) -> None:
@@ -393,7 +393,7 @@ class EdgeFMNISTDataset(torchvision.datasets.FashionMNIST):
                  target_transform=None,
                  download: bool = False,
                  views=None,
-                 mask_view=False,
+                 mask_view: bool=False,
                  random_indices=None,
                  random_view=None
                  ) -> None:
@@ -495,7 +495,7 @@ class COIL100Dataset(Dataset):
                  target_transform=None,
                  download: bool = False,
                  views=2,
-                 mask_view=False,
+                 mask_view: bool=False,
                  random_indices=None,
                  random_view=None
                  ) -> None:
@@ -638,11 +638,25 @@ class Office31(Dataset):
                'monitor', 'mobile_phone', 'desk_chair', 'laptop_computer']
 
     def __init__(self, root='./data/Office31', train: bool = True,
-                 transform=None, target_transform=None, download: bool = False, views=3) -> None:
+                 transform=None,
+                 target_transform=None,
+                 download: bool = False,
+                 views=3,
+                 mask_view:bool = False,
+                 random_indices=None,
+                 random_view=None
+                 ) -> None:
         super().__init__()
         self.root = root
         self.transform = transform
         self.load_image_path(train)
+        self.mask_view = mask_view
+        if self.mask_view:
+            self.is_mask = [False for i in range(self.data.shape[0])]
+            self.random_views = [0 for i in range(self.data.shape[0])]
+            for (idx, v) in zip(random_indices, random_view):
+                self.is_mask[idx] = True
+                self.random_views[idx] = v
 
     def load_image_path(self, train):
         import json
@@ -662,6 +676,10 @@ class Office31(Dataset):
             view0 = self.transform(view0)
             view1 = self.transform(view1)
             view2 = self.transform(view2)
+
+        if self.mask_view and self.is_mask[index]:
+            x = [view0, view1]
+            x[self.random_views[index]].zero_()
 
         return [view0, view1, view2], target
 
