@@ -214,7 +214,7 @@ def main():
             model_path = os.path.join('./experiments',
                                       config.experiment_name,
                                       f'{config.experiment_name}-Sch-v{config.vspecific.v_dim}-c{config.consistency.c_dim}-m{m/10}-mv{mv/10}-{config.seed}',
-                                      'final_model.pth')
+                                      f'final_model-{config.seed}.pth')
             # define a model
             model = MMRDD(
                 config=config,
