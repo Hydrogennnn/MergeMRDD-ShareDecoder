@@ -212,9 +212,9 @@ def align_office31(root):
             save_image(t_image, new_path)
 
     views_mapping = {
-        'A': 'amazon/images',
-        'D': 'dslr/images',
-        'W': 'webcam/images'
+        'A': 'amazon',
+        'D': 'dslr',
+        'W': 'webcam'
     }
 
     classes = ['paper_notebook', 'desktop_computer', 'punchers', 'desk_lamp', 'tape_dispenser',
@@ -424,8 +424,8 @@ class EdgeFMNISTDataset(torchvision.datasets.FashionMNIST):
             x = [view0, view1]
             x[self.random_views[idx]].zero_()
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
+        # if self.target_transform is not None:
+        #     target = self.target_transform(target)
         return [view0, view1], self.targets[idx]
 
 
@@ -626,9 +626,9 @@ class Office31(Dataset):
     """
 
     views_mapping = {
-        'A': 'amazon/images',
-        'D': 'dslr/images',
-        'W': 'webcam/images'
+        'A': 'amazon',
+        'D': 'dslr',
+        'W': 'webcam'
     }
 
     classes = ['paper_notebook', 'desktop_computer', 'punchers', 'desk_lamp', 'tape_dispenser',
@@ -652,8 +652,8 @@ class Office31(Dataset):
         self.load_image_path(train)
         self.mask_view = mask_view
         if self.mask_view:
-            self.is_mask = [False for i in range(self.data.shape[0])]
-            self.random_views = [0 for i in range(self.data.shape[0])]
+            self.is_mask = [False for i in range(len(self))]
+            self.random_views = [0 for i in range(len(self))]
             for (idx, v) in zip(random_indices, random_view):
                 self.is_mask[idx] = True
                 self.random_views[idx] = v
@@ -667,9 +667,9 @@ class Office31(Dataset):
 
     def __getitem__(self, index):
         a, d, w, target = self.data[index]
-        view0 = pil_loader(os.path.join(self.root, a))
-        view1 = pil_loader(os.path.join(self.root, d))
-        view2 = pil_loader(os.path.join(self.root, w))
+        view0 = pil_loader(os.path.join(self.root, a[1:]))
+        view1 = pil_loader(os.path.join(self.root, d[1:]))
+        view2 = pil_loader(os.path.join(self.root, w[1:]))
         target = torch.tensor(target).long()
 
         if self.transform:
@@ -678,7 +678,7 @@ class Office31(Dataset):
             view2 = self.transform(view2)
 
         if self.mask_view and self.is_mask[index]:
-            x = [view0, view1]
+            x = [view0, view1, view2]
             x[self.random_views[index]].zero_()
 
         return [view0, view1, view2], target
@@ -823,17 +823,19 @@ if __name__ == '__main__':
     # dataset = COIL100Dataset(root='/home/xyzhang/guanzhouke/MyData', train=True, views=4)
     # print(dataset[0])
     # pass
-    trans = transforms.Compose([
-        transforms.Resize((32,32)),
-        transforms.ToTensor()])
-    dataset = COIL100Dataset(train=False, views=2, transform=trans, root="./MyData")
-    Xs, _ = dataset[0]
-    Xs = [add_sp_noise(x, 0.05) for x in Xs]
-    to_pil_img = transforms.ToPILImage()
-    img = [to_pil_img(x) for x in Xs]
-    for x in img:
-        x.show()
-
+    # trans = transforms.Compose([
+    #     transforms.Resize((32,32)),
+    #     transforms.ToTensor()])
+    # dataset = COIL100Dataset(train=False, views=2, transform=trans, root="./MyData")
+    # Xs, _ = dataset[0]
+    # Xs = [add_sp_noise(x, 0.05) for x in Xs]
+    # to_pil_img = transforms.ToPILImage()
+    # img = [to_pil_img(x) for x in Xs]
+    # for x in img:
+    #     x.show()
+    align_office31("MyData/Office31")
+    # dataset = Office31("MyData/Office31", train=False, transform=transforms.Compose([transforms. ToTensor()]))
+    # print(len(dataset))
     # generate_mvc_dataset('/mnt/disk3/data/mvc-10', views=2)
     # generate_mvc_dataset('/mnt/disk3/data/mvc-10', views=3)
     # generate_mvc_dataset('/mnt/disk3/data/mvc-10', views=4)
