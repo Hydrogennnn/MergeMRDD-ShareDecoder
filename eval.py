@@ -153,7 +153,7 @@ def main():
 
     run_times = 10
     n_clusters = config.dataset.class_num
-    need_classification = True
+    need_classification = False
 
     model_path = config.eval.model_path
     model = MMRDD(

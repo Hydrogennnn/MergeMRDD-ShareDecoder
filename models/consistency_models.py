@@ -32,7 +32,8 @@ class ConsistencyAE(nn.Module):
                  kld_weight=0.00025,
                  views=2,
                  alpha=0.5,
-                 categorical_dim=10) -> None:
+                 categorical_dim=10,
+                 dropout=0.0) -> None:
         """
         """
         super().__init__()
@@ -53,6 +54,7 @@ class ConsistencyAE(nn.Module):
         self.kld_weight = kld_weight
         self.categorical_dim = categorical_dim
         self.alpha = alpha
+        self.dropout = dropout
         
         
         self._encoder = Encoder(hidden_dim=self.basic_hidden_dim,
@@ -63,7 +65,8 @@ class ConsistencyAE(nn.Module):
                                 resolution=1,
                                 use_attn=False,
                                 attn_resolutions=None,
-                                double_z=False)
+                                double_z=False,
+                                dropout=self.dropout)
         # self._encoder = resnet18(pretrained=False, in_channel=self.in_channel, output_layer=6)
     
         # self.decoders = nn.ModuleList([Decoder(hidden_dim=self.basic_hidden_dim,

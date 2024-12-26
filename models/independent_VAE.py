@@ -21,7 +21,8 @@ class IVAE(nn.Module):
                                                              ch_mult=self.args.vspecific.ch_mult,
                                                              init_method=self.args.backbone.init_method,
                                                              kld_weight=self.args.vspecific.kld_weight,
-                                                             device=self.device))
+                                                             device=self.device,
+                                                             dropout=self.args.train.dropout))
 
     def forward(self, Xs):
         outs = []

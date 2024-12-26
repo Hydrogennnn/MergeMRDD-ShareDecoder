@@ -15,13 +15,13 @@ dataset:
   root: 'MyData'
   class_num: 10
 train:
-  epochs: 200
+  epochs: 100
   # 64, 128, 512, 1024
   devices: [1]
   batch_size: 512
   optim: "adamw"
   num_workers: 8
-  lr: 0.0001
+  lr: 0.0005
   evaluate: 1
   use_ddp: false
   scheduler: 'consine'
@@ -29,9 +29,8 @@ train:
   resume: false
   masked_ratio: 0.7
   mask_patch_size: 2
-#
-#  mask_view: true
-#  mask_view_ratio: 0.15
+  mask_view: true
+  mask_view_ratio: 0.3
 
 
 consistency:

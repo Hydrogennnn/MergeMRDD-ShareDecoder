@@ -21,7 +21,7 @@ train:
   batch_size: 512
   optim: "adamw"
   num_workers: 8
-  lr: 0.0001
+  lr: 0.0005
   evaluate: 1
   use_ddp: false
   scheduler: 'consine'
@@ -29,8 +29,8 @@ train:
   resume: false
   masked_ratio: 0.7
   mask_patch_size: 2
-  mask_view: false
-  mask_view_ratio: 0.15
+  mask_view: true
+  mask_view_ratio: 0.3
 
 
 consistency:
@@ -69,5 +69,5 @@ valid_augmentation:
 
 eval:
   noise_prob: 0.1
-  model_path: './experiments/emnist/emnist-Sch-v10-c10-m0.7-mv0.3-3407/best-1284-180-3407.pth'
+  model_path: './experiments/emnist/emnist-Sch-v10-c10-m0.7-mv0.3-3407/final_model-3407.pth'
   modal_missing_ratio: 0.5
