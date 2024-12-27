@@ -212,9 +212,9 @@ def align_office31(root):
             save_image(t_image, new_path)
 
     views_mapping = {
-        'A': 'amazon',
-        'D': 'dslr',
-        'W': 'webcam'
+        'A': 'amazon/images',
+        'D': 'dslr/images',
+        'W': 'webcam/images'
     }
 
     classes = ['paper_notebook', 'desktop_computer', 'punchers', 'desk_lamp', 'tape_dispenser',
@@ -256,10 +256,9 @@ def align_office31(root):
         D_path += [p[len(root):] for p in item_D]
         W_path += [p[len(root):] for p in item_W]
         targets += ([idx] * len(item_A))
-
+        print(A_path)
     X = np.c_[[A_path, D_path, W_path]].T
     Y = np.array(targets)
-
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
     train = []

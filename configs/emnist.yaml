@@ -1,7 +1,7 @@
 # general setting.
 views: 2
 seed: 3407
-wandb: true
+wandb: false
 experiment_name: "emnist"
 verbose: false
 note: 'disentangling'
@@ -18,7 +18,7 @@ train:
   epochs: 200
   # 64, 128, 512, 1024
   devices: [0]
-  batch_size: 512
+  batch_size: 128
   optim: "adamw"
   num_workers: 8
   lr: 0.0005
