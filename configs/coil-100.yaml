@@ -18,10 +18,11 @@ train:
   epochs: 200
   # 64, 128, 512, 1024
   devices: [2]
-  batch_size: 64
+  batch_size: 49
   optim: "adamw"
   num_workers: 8
-  lr: 0.0005
+  lr: 0.0001
+  dropout: 0.2
   evaluate: 1
   use_ddp: false
   scheduler: 'consine'
@@ -29,9 +30,8 @@ train:
   resume: false
   masked_ratio: 0.7
   mask_patch_size: 4
-#
-#  mask_view: true
-#  mask_view_ratio: 0.15
+  mask_view: true
+  mask_view_ratio: 0.3
 
 
 consistency:

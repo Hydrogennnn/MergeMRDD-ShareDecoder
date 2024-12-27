@@ -22,7 +22,8 @@ class ViewSpecificAE(nn.Module):
                  ch_mult=[1,2,4,8],
                  kld_weight=0.00025,
                  init_method='kaiming',
-                 device='cpu') -> None:
+                 device='cpu',
+                 dropout=0.0) -> None:
         super().__init__()
         
         # view-specific id.
@@ -39,6 +40,8 @@ class ViewSpecificAE(nn.Module):
         self.c_enable = c_enable
         self.input_channel = channels
         self.kld_weight = kld_weight
+
+        self.dropout=dropout
         self.build_encoder_and_decoder()
                
         self.recons_criterion = nn.MSELoss(reduction='sum')
@@ -79,7 +82,8 @@ class ViewSpecificAE(nn.Module):
                                 resolution=1, 
                                 use_attn=False, 
                                 attn_resolutions=None,
-                                double_z=False)
+                                double_z=False,
+                                dropout=self.dropout)
         self._decoder = Decoder(hidden_dim=self.basic_hidden_dim, 
                                 out_channels=self.input_channel, 
                                 in_channels=self.latent_ch, 
@@ -89,7 +93,8 @@ class ViewSpecificAE(nn.Module):
                                 resolution=1, 
                                 use_attn=False, 
                                 attn_resolutions=None,
-                                double_z=False)
+                                double_z=False,
+                                dropout=self.dropout)
         
         self.to_dist_layer = nn.Linear(self.latent_ch * (self.block_size **2), self.v_dim*2)
         if self.c_enable:

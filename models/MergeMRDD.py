@@ -34,7 +34,8 @@ class MMRDD(nn.Module):
             latent_ch=config.consistency.latent_ch,
             kld_weight=config.consistency.kld_weight,
             views=config.views,
-            categorical_dim=config.dataset.class_num
+            categorical_dim=config.dataset.class_num,
+            dropout=config.train.dropout
         )
 
         # # mutual information estimation

@@ -87,6 +87,7 @@ _C.train.batch_size = 512
 _C.train.optim = 'sgd'
 _C.train.devices = [0, 1, 2, 3]
 _C.train.lr = 0.001
+_C.train.dropout = 0.0
 _C.train.num_workers = 2
 _C.train.save_log = True
 # if None, it will be set as './experiments/results/[model name]/[dataset name]'
