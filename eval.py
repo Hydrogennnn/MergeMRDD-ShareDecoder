@@ -94,7 +94,7 @@ def extract_features(val_dataloader, model, device, noise_prob=None):
         if noise_prob:
             Xs = [add_sp_noise(x, noise_prob).to(device) for x in Xs]
         else:
-
+            
             Xs = [x.to(device) for x in Xs]
 
         consist_repr_, vspecific_repr_, concate_repr_, all_concate = model.all_features(Xs)  # Tensor, list, list

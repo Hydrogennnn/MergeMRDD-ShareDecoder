@@ -27,7 +27,9 @@ def main():
                      "./configs/fmnist.yaml",
                      "./configs/coil-100.yaml",
                      "./configs/office31.yaml",
-                     "./configs/coil-20.yaml"]
+                     "./configs/coil-20.yaml",
+                     "./configs/polymnist.yaml",
+                     "./configs/mnist-svhn.yaml"]
 
     # for key in __dataset_dict.keys():
     #     dataclass = __dataset_dict.get(key, None)
