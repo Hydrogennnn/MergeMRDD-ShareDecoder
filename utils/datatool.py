@@ -887,7 +887,7 @@ class MNISTSVHNDataset(Dataset):
         if self.mask_view and self.is_mask[idx]:
             x = [mnist_sample, svhn_sample]
             x[self.random_views[idx]].zero_()
-        return [mnist_sample, svhn_sample], torch.tensor(mnist_label)
+        return [mnist_sample.repeat(3,1,1), svhn_sample], torch.tensor(mnist_label)
 
     def __len__(self):
 
