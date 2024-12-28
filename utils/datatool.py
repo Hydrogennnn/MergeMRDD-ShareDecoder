@@ -134,7 +134,7 @@ def get_train_transformations(args, task='pretext'):
 
 def get_val_transformations(args):
     return transforms.Compose([
-        ChannelTransform(target_channels=args.valid_augmentation.channels),
+        # ChannelTransform(target_channels=args.valid_augmentation.channels),
         transforms.Resize((args.valid_augmentation.crop_size, args.valid_augmentation.crop_size)),
         transforms.ToTensor()])
 
