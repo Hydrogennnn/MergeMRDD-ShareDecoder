@@ -12,7 +12,7 @@ backbone:
   init_method: 'xavier'
 dataset:
   name: 'PolyMnist'
-  root: 'MyData'
+  root: '../datasets'
   class_num: 10
 train:
   epochs: 200
@@ -36,7 +36,7 @@ train:
 consistency:
   continous: True
   c_dim: 10
-  in_channel: 1
+  in_channel: 3
   ch_mult: [1, 2, 4]
   block_size: 8
   basic_hidden_dim: 16
@@ -48,7 +48,7 @@ consistency:
 
 
 vspecific:
-  in_channel: 1
+  in_channel: 3
   v_dim: 10
   ch_mult: [1, 2, 4]
   block_size: 8
