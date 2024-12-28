@@ -12,7 +12,7 @@ backbone:
   init_method: 'xavier'
 dataset:
   name: 'office-31'
-  root: 'MyData/Office31'
+  root: '../datasets/Office31'
   class_num: 31
 train:
   epochs: 200

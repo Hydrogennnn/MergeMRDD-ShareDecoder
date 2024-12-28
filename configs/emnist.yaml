@@ -12,7 +12,7 @@ backbone:
   init_method: 'xavier'
 dataset:
   name: 'EdgeMnist'
-  root: 'MyData'
+  root: '../datasets'
   class_num: 10
 train:
   epochs: 200

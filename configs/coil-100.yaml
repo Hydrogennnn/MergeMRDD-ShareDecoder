@@ -12,7 +12,7 @@ backbone:
   init_method: 'xavier'
 dataset:
   name: 'coil-100'
-  root: 'MyData'
+  root: '../datasets'
   class_num: 100
 train:
   epochs: 200

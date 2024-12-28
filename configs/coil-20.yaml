@@ -12,10 +12,10 @@ backbone:
   init_method: 'xavier'
 dataset:
   name: 'coil-20'
-  root: 'MyData'
+  root: '../datasets'
   class_num: 20
 train:
-  epochs: 200
+  epochs: 100
   # 64, 128, 512, 1024
   devices: [2]
   batch_size: 49
@@ -37,7 +37,7 @@ train:
 consistency:
   continous: True
   c_dim: 10
-  in_channel: 3
+  in_channel: 1
   ch_mult: [1, 2, 4, 8]
   block_size: 8
   basic_hidden_dim: 32
@@ -49,7 +49,7 @@ consistency:
 
 
 vspecific:
-  in_channel: 3
+  in_channel: 1
   v_dim: 10
   ch_mult: [1, 2, 4, 8]
   block_size: 8
