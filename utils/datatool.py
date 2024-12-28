@@ -665,8 +665,8 @@ class Office31(Dataset):
 
         self.mask_view = mask_view
         if self.mask_view:
-            self.is_mask = [False for i in range(self.data.shape[0])]
-            self.random_views = [0 for i in range(self.data.shape[0])]
+            self.is_mask = [False for i in range(len(self))]
+            self.random_views = [0 for i in range(len(self))]
             for (idx, v) in zip(random_indices, random_view):
                 self.is_mask[idx] = True
                 self.random_views[idx] = v
