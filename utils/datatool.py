@@ -785,14 +785,6 @@ class PolyMNISTDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
-        self.mask_view = mask_view
-        if self.mask_view:
-            self.is_mask = [False for i in range(self.data.shape[0])]
-            self.random_views = [0 for i in range(self.data.shape[0])]
-            for (idx, v) in zip(random_indices, random_view):
-                self.is_mask[idx] = True
-                self.random_views[idx] = v
-
         if self.train:
             self.unimodal_datapaths = [self.root + "/train/" + "m" + str(i) for i in range(self.views)]
         else:
@@ -808,6 +800,14 @@ class PolyMNISTDataset(Dataset):
         for files in self.file_paths.values():
             assert len(files) == num_files
         self.num_files = num_files
+
+        self.mask_view = mask_view
+        if self.mask_view:
+            self.is_mask = [False for i in range(len(self))]
+            self.random_views = [0 for i in range(len(self))]
+            for (idx, v) in zip(random_indices, random_view):
+                self.is_mask[idx] = True
+                self.random_views[idx] = v
 
     def __getitem__(self, index):
         """
@@ -836,8 +836,16 @@ class PolyMNISTDataset(Dataset):
 
 class MNISTSVHNDataset(Dataset):
 
-    def __init__(self, root="datasets/mnist-svhn", train: bool = True,
-                 transform=None, target_transform=None, download: bool = False, views=2):
+    def __init__(self, root="datasets/mnist-svhn",
+                 train: bool = True,
+                 transform=None,
+                 target_transform=None,
+                 download: bool = False,
+                 views=2,
+                 mask_view: bool = False,
+                 random_indices=None,
+                 random_view=None
+                 ):
         self.root = root
         self.train = train
         self.transform = transform
@@ -856,6 +864,13 @@ class MNISTSVHNDataset(Dataset):
             self.svhn_data = datasets.SVHN(self.root, split='test', download=True, transform=self.transform)
 
         assert len(self.mnist_idx) == len(self.svhn_idx), "MNIST and SVHN indices must have the same length."
+        self.mask_view = mask_view
+        if self.mask_view:
+            self.is_mask = [False for i in range(len(self))]
+            self.random_views = [0 for i in range(len(self))]
+            for (idx, v) in zip(random_indices, random_view):
+                self.is_mask[idx] = True
+                self.random_views[idx] = v
 
     def __getitem__(self, idx):
         """
@@ -869,6 +884,9 @@ class MNISTSVHNDataset(Dataset):
         if mnist_label != svhn_label:
             raise ValueError("MNIST and SVHN labels do not match at index {}.".format(idx))
 
+        if self.mask_view and self.is_mask[idx]:
+            x = [mnist_sample, svhn_sample]
+            x[self.random_views[idx]].zero_()
         return [mnist_sample, svhn_sample], torch.tensor(mnist_label)
 
     def __len__(self):
