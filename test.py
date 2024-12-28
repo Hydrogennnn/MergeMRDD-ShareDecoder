@@ -1,21 +1,27 @@
-import torch
-import torch.nn as nn
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
-a = torch.tensor([[1, 2],
-                  [3, 4]], dtype=torch.float)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
 
-b = torch.tensor([[3, 5],
-                  [8, 6]], dtype=torch.float)
+# 生成数据
+x = np.arange(5)
+y = np.arange(5)
+z = np.random.randint(10, size=(5, 5))
 
-loss_fn1 = torch.nn.MSELoss(reduction='none')
-loss1 = loss_fn1(a.float(), b.float())
-print(loss1)  # 输出结果：tensor([[ 4.,  9.],
-#                 [25.,  4.]])
+# 设置柱子的位置和大小
+dx = dy = 0.8
+dz = z
 
-loss_fn2 = torch.nn.MSELoss(reduction='sum')
-loss2 = loss_fn2(a.float(), b.float())
-print(loss2)  # 输出结果：tensor(42.)
+# 绘制3D柱状图
+for i in range(5):
+    for j in range(5):
+        ax.bar3d(x[i], y[j], 0, dx, dy, dz[i, j])
 
-loss_fn3 = torch.nn.MSELoss(reduction='mean')
-loss3 = loss_fn3(a.float(), b.float())
-print(loss3)  # 输出结果：tensor(10.5000)
+ax.set_xlabel('X axis')
+ax.set_ylabel('Y axis')
+ax.set_zlabel('Z axis')
+ax.set_title('How2matplotlib.com 3D Bar Plot')
+
+plt.show()
