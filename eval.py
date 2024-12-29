@@ -172,43 +172,45 @@ def main():
     consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device)
     print('eval on consist...')
     report(run_times, n_clusters, need_classification, labels, consistency)
-    print('eval on all concate...')
-    report(run_times, n_clusters, need_classification, labels, all_concate)
-    for key in vspecific:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, vspecific[key])
-
-    for key in concate:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, concate[key])
+    # print('eval on all concate...')
+    # report(run_times, n_clusters, need_classification, labels, all_concate)
+    # for key in vspecific:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
+    #
+    # for key in concate:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, concate[key])
 
     print("[Evaluation on modal missing]")
     consistency, vspecific, concate, all_concate, labels = extract_features(mask_train_dataloader, model, device)
     print('eval on consist...')
     report(run_times, n_clusters, need_classification, labels, consistency)
-    print('eval on all concate...')
-    report(run_times, n_clusters, need_classification, labels, all_concate)
-    for key in vspecific:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, vspecific[key])
+    # print('eval on all concate...')
+    # report(run_times, n_clusters, need_classification, labels, all_concate)
+    # for key in vspecific:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
+    #
+    # for key in concate:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, concate[key])
 
-    for key in concate:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, concate[key])
+    for i in range(1,10,1):
 
-    print("[Evaluation on Salt-Pepper noise]")
-    consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device, noise_prob=config.eval.noise_prob)
-    print('eval on consist...')
-    report(run_times, n_clusters, need_classification, labels, consistency)
-    print('eval on all concate...')
-    report(run_times, n_clusters, need_classification, labels, all_concate)
-    for key in vspecific:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, vspecific[key])
-
-    for key in concate:
-        print(f'eval on {key}...')
-        report(run_times, n_clusters, need_classification, labels, concate[key])
+        print(f"[Evaluation on {i/10} Salt-Pepper noise]")
+        consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device, noise_prob=i/10)
+        print('eval on consist...')
+        report(run_times, n_clusters, need_classification, labels, consistency)
+    # print('eval on all concate...')
+    # report(run_times, n_clusters, need_classification, labels, all_concate)
+    # for key in vspecific:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
+    #
+    # for key in concate:
+    #     print(f'eval on {key}...')
+    #     report(run_times, n_clusters, need_classification, labels, concate[key])
         # vspecs1 = []
         # vspecs2 = []
         # if config.views == 3:
