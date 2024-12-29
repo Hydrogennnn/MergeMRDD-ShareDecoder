@@ -94,6 +94,11 @@ class MMRDD(nn.Module):
         return C, spe_repr, concat_list, all_concate
 
     @torch.no_grad()
+    def generate(self, Xs):
+        C = self.consistency_features(Xs)
+        return self.spe_enc.generate(Xs=Xs,C=C)
+
+    @torch.no_grad()
     def specific_latent_dist(self, x, v):  # distribution of view v
         mu, logvar = self.spe_enc.__getattr__(f"venc_{v + 1}").encode(x)
         return mu, logvar

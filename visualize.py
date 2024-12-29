@@ -64,9 +64,6 @@ def draw_mask_view(title, data):
 
     plt.show()
 
-
-
-
     # fig = plt.figure(figsize=(10, 8))
     # ax = fig.add_subplot(111, projection='3d')
     # ax.set_xlabel('masked_ratio')
@@ -92,8 +89,7 @@ def draw_mask_view(title, data):
     # # 显示图形
     # plt.show()
 
-
-def main():
+def show_bar3d():
     with open('./grid_eval_coil.json', 'r') as f:
         data = json.load(f)
 
@@ -101,6 +97,43 @@ def main():
     # draw(key_list[0], data[key_list[0]])
     draw_mask_view(key_list[0], data[key_list[0]])
 
+def show_generate():
+
+    # 自动计算行列数
+    ncols = 3
+    nrows = config.train.batch_size  # 根据 batch_size 计算行数
+    plt.figure(figsize=(ncols * 2, nrows * 2))
+
+    ncols = 3
+    nrows = 4  # 根据 batch_size 计算行数
+    for i in range(3 * 4):
+        v = i % 3
+        idx = i // 3
+        image_tensor = Xs[v][idx].cpu()
+        image_tensor = image_tensor.permute(1, 2, 0)
+        image_tensor = image_tensor.clamp(0, 1)
+        image_array = (image_tensor.numpy() * 255).astype(np.uint8)
+        # 计算当前图像所在的子图位置
+        plt.subplot(nrows, ncols, i + 1)
+        plt.imshow(image_array)
+        plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+    exit()
+
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config-file', '-f', type=str, help='Config File')
+    args = parser.parse_args()
+    return args
+
+def main():
+
+    # show_bar3d()
+    show_generate()
 
 if __name__=='__main__':
     main()

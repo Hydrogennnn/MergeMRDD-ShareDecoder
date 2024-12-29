@@ -13,6 +13,7 @@ class IVAE(nn.Module):
         for i in range(self.args.views):
             self.__setattr__(f"venc_{i + 1}", ViewSpecificAE(c_enable=True,
                                                              v_dim=self.args.vspecific.v_dim,
+                                                             c_dim=self.args.consistency.c_dim,
                                                              latent_ch=self.args.vspecific.latent_ch,
                                                              num_res_blocks=self.args.vspecific.num_res_blocks,
                                                              block_size=self.args.vspecific.block_size,
@@ -59,6 +60,20 @@ class IVAE(nn.Module):
             return vspecific_features[self.config.best_view]
         else:
             return vspecific_features
+
+    @torch.no_grad()
+    def generate(self, Xs, C):
+        outputs = []
+        for i, x in enumerate(Xs):
+            output, _, _ = self.__getattr__(f"venc_{i + 1}")(x, C)
+            outputs.append(output)
+
+        return outputs
+
+
+
+
+
 
 
     
