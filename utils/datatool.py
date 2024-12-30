@@ -1,6 +1,7 @@
 import torchvision.transforms as transforms
 import torchvision
 from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
 import torch
 import numpy as np
 from PIL import Image
@@ -1181,6 +1182,64 @@ class CUBSentences(Dataset):
         return ret_str
 
 
+class LandUse(Dataset):
+
+    def __init__(self, root="datasets/UCMerced_LandUse",
+                 train: bool = True,
+                 transform=None,
+                 target_transform=None,
+                 download: bool = False,
+                 views=4,
+                 mask_view: bool = False,
+                 random_indices=None,
+                 random_view=None
+                 ):
+        self.root = root
+        self.train = train
+        self.transform = transform
+        self.views = views
+        self.target_transform = target_transform
+
+        if self.train:
+            with open(f"{self.root}/train.json", 'r') as f:
+                self.data = json.load(f)
+        else:
+            with open(f"{self.root}/test.json", 'r') as f:
+                self.data = json.load(f)
+
+
+        self.labels = self.data['labels']
+        self.imgs = self.data['data']
+
+        self.mask_view = mask_view
+        if self.mask_view:
+            self.is_mask = [False for i in range(len(self))]
+            self.random_views = [0 for i in range(len(self))]
+            for (idx, v) in zip(random_indices, random_view):
+                self.is_mask[idx] = True
+                self.random_views[idx] = v
+
+    def __getitem__(self, idx):
+        images = []
+        for v in range(self.views):
+            images.append(Image.open(self.imgs[idx][f"v{v}"]))
+
+        if self.transform:
+            images=[self.transform(img) for img in images]
+
+        if self.mask_view:
+            images[self.random_views[idx]].zeros_()
+
+        return images, self.labels[idx]
+
+
+
+    def __len__(self):
+
+        return len(self.labels)
+
+
+
 __dataset_dict = {
     'EdgeMnist': EdgeMNISTDataset,
     'FashionMnist': EdgeFMNISTDataset,
@@ -1191,6 +1250,7 @@ __dataset_dict = {
     'ff++': FFDataset,
     'PolyMnist': PolyMNISTDataset,
     'mnist-svhn': MNISTSVHNDataset,
+    'LandUse': LandUse
 }
 
 
@@ -1284,3 +1344,30 @@ class ChannelTransform(object):
             x = x[:self.target_channels, :, :]
 
         return x
+
+if __name__=='__main__':
+    dataset = LandUse(root='../MyData/UCMerced_LandUse',
+                      train=False)
+    imgs = dataset[0][0][0]
+    print(imgs.mode)
+    # ncols = 4
+    # nrows = 2  # 根据 batch_size 计算行数
+    # plt.figure(figsize=(ncols * 2, nrows * 2))
+    # for i in range(4):
+    #     # 计算当前图像所在的子图位置
+    #     plt.subplot(nrows, ncols, i + 1)
+    #     plt.imshow(imgs[i])
+    #     plt.axis('off')
+    #
+    # imgs = dataset[1][0]
+    # for i in range(4, 8):
+    #     # 计算当前图像所在的子图位置
+    #     plt.subplot(nrows, ncols, i + 1)
+    #     plt.imshow(imgs[i-4])
+    #     plt.axis('off')
+    #
+    #
+    # plt.tight_layout()
+    # plt.show()
+
+

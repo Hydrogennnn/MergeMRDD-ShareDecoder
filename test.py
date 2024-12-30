@@ -1,27 +1,69 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
+import os
+from collections import defaultdict
+from glob import glob
+from sklearn.model_selection import train_test_split
+import json
+import random
+# # 设置目标文件夹路径
+# folder_path = 'MyData/UCMerced_LandUse/Images'
+#
+# # 获取文件夹下的所有文件和目录
+# all_items = os.listdir(folder_path)
+#
+# # 筛选出子目录
+# subdirectories = [item for item in all_items if os.path.isdir(os.path.join(folder_path, item))]
+#
+# # 打印所有子目录
+# print(subdirectories)
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+def align_landuse(root):
+    classes = ['agricultural', 'airplane', 'baseballdiamond', 'beach', 'buildings', 'chaparral', 'denseresidential',
+               'forest',
+               'freeway', 'golfcourse', 'harbor', 'intersection', 'mediumresidential', 'mobilehomepark', 'overpass',
+               'parkinglot',
+               'river', 'runway', 'sparseresidential', 'storagetanks', 'tenniscourt']
 
-# 生成数据
-x = np.arange(5)
-y = np.arange(5)
-z = np.random.randint(10, size=(5, 5))
+    views = 4
 
-# 设置柱子的位置和大小
-dx = dy = 0.8
-dz = z
+    X = []
+    Y = []
 
-# 绘制3D柱状图
-for i in range(5):
-    for j in range(5):
-        ax.bar3d(x[i], y[j], 0, dx, dy, dz[i, j])
+    for idx, c in enumerate(classes):
+        items = glob(f"{root}/images/{c}/*.tif")
+        sample = {}
+        for i in range(len(items)//views):
+            for j in range(views):
+                sample[f"v{j}"]=items[i*views+j]
 
-ax.set_xlabel('X axis')
-ax.set_ylabel('Y axis')
-ax.set_zlabel('Z axis')
-ax.set_title('How2matplotlib.com 3D Bar Plot')
+            X.append(sample)
+            Y.append(idx)
 
-plt.show()
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+    with open(f"{root}/train.json", 'w') as f:
+        data = {
+            'data': X_train,
+            'labels': y_train
+        }
+        json.dump(data, f)
+
+    with open(f"{root}/test.json", 'w') as f:
+        data = {
+            'data': X_test,
+            'labels': y_test
+        }
+        json.dump(data, f)
+
+
+
+
+
+
+
+
+
+
+if __name__=='__main__':
+    align_landuse("E:\\Research\\Merge_Mrdd-share decoder\\MyData\\UCMerced_LandUse")
+
+
