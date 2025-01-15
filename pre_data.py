@@ -13,7 +13,6 @@ def generate(data_set, path, config):
     if not os.path.isdir(file_dir):
         os.mkdir(file_dir)
     # Write the file
-
     num_to_select = int(len(data_set) * config.eval.modal_missing_ratio)
     random_indices = random.sample(range(len(data_set)), num_to_select)
     random_views = [random.randint(0, config.views - 1) for _ in range(num_to_select)]

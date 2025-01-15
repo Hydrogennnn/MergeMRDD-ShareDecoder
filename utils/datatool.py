@@ -1264,8 +1264,8 @@ def get_train_dataset(args, transform):
     return train_set
 
 
-def get_mask_train_dataset(args, transform):
-    file_path = os.path.join(args.eval.mv_root, "train", args.dataset.name + ".json")
+def get_mask_train_dataset(args, transform, m_ratio=0.0):
+    file_path = os.path.join(args.eval.mv_root, args.dataset.name,str(m_ratio), "train.json")
     # Read the file
     assert os.path.exists(file_path)
     with open(file_path, "r") as file:
@@ -1315,6 +1315,7 @@ def add_sp_noise(x, noise_prob):
     Add Salt-Pepper Noise To Dataset
     Params x:Tensor(C,W,H)
     """
+    noise_prob/=2
     random_matrix = torch.rand_like(x)
     salt_mask = random_matrix > 1.0 - noise_prob
     pepper_mask = random_matrix < noise_prob

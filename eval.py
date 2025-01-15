@@ -21,7 +21,8 @@ from utils.datatool import (get_val_transformations,
                             add_sp_noise,
                             get_mask_train_dataset,
                             get_train_dataset)
-
+import random
+import json
 
 
 def clustering_accuracy(y_true, y_pred):
@@ -81,7 +82,19 @@ def classification_metric(y_true, y_pred, average='macro', verbose=True, decimal
 
     return accuracy, precision, f_score
 
-
+def generate_missing(m_ratio, tot_nums, dataset_name, num_views):
+    res_dir = os.path.join("MaskView", dataset_name, str(m_ratio))
+    file_path = os.path.join(res_dir, "train.json")
+    if not os.path.isdir(res_dir):
+        os.makedirs(res_dir)
+    # Write the file
+    random.seed = 42
+    num_to_select = int(tot_nums * m_ratio)
+    random_indices = random.sample(range(tot_nums), num_to_select)
+    random_views = [random.randint(0, num_views - 1) for _ in range(num_to_select)]
+    print('name:', dataset_name, 'len:', tot_nums, 'num_views:', num_views)
+    with open(file_path, "w") as file:
+        json.dump({'indices': random_indices, 'views': random_views}, file)
 
 @torch.no_grad()
 def extract_features(val_dataloader, model, device, noise_prob=None):
@@ -142,18 +155,11 @@ def main():
                                 shuffle=False,
                                 pin_memory=True,
                                 drop_last=False)
-    mask_train_set = get_mask_train_dataset(config, val_transformations)
-    mask_train_dataloader = DataLoader(mask_train_set,
-                                num_workers=config.train.num_workers,
-                                batch_size=config.train.batch_size,
-                                sampler=None,
-                                shuffle=False,
-                                pin_memory=True,
-                                drop_last=False)
+    # generate missing
 
     run_times = 10
     n_clusters = config.dataset.class_num
-    need_classification = False
+    need_classification = True
 
     model_path = config.eval.model_path
     model = MMRDD(
@@ -168,75 +174,46 @@ def main():
     print(f'Use: {device}')
 
     model.eval()
-    print("[Evaluation on full modal]")
-    consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device)
-    print('eval on consist...')
-    report(run_times, n_clusters, need_classification, labels, consistency)
-    # print('eval on all concate...')
-    # report(run_times, n_clusters, need_classification, labels, all_concate)
-    # for key in vspecific:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
-    #
-    # for key in concate:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, concate[key])
+    # print("[Evaluation on full ]")
+    # consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device)
+    # print('eval on consist...')
+    # report(run_times, n_clusters, need_classification, labels, consistency)
+    eval_res = defaultdict(list)
+    res_dir = "eval_res"
+    if os.path.isdir(res_dir):
+        os.mkdir(res_dir)
+    res_path = os.path.join(res_dir, config.dataset.name+".json")
 
-    print("[Evaluation on modal missing]")
-    consistency, vspecific, concate, all_concate, labels = extract_features(mask_train_dataloader, model, device)
-    print('eval on consist...')
-    report(run_times, n_clusters, need_classification, labels, consistency)
-    # print('eval on all concate...')
-    # report(run_times, n_clusters, need_classification, labels, all_concate)
-    # for key in vspecific:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
-    #
-    # for key in concate:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, concate[key])
 
-    for i in range(1,10,1):
+    for i in range(0,10):
+        print(f"[Evaluation on {i / 10}modal missing]")
+        generate_missing(m_ratio=i/10,tot_nums=len(train_set), dataset_name=config.dataset.name, num_views=config.views)
+        mask_train_set = get_mask_train_dataset(config, val_transformations, m_ratio=i/10)
+        mask_train_dataloader = DataLoader(mask_train_set,
+                                           num_workers=config.train.num_workers,
+                                           batch_size=config.train.batch_size,
+                                           sampler=None,
+                                           shuffle=False,
+                                           pin_memory=True,
+                                           drop_last=False)
 
+        consistency, vspecific, concate, all_concate, labels = extract_features(mask_train_dataloader, model, device)
+        print('eval on consist...')
+        cluster_acc, _, _, cls_acc, _, _ = report(run_times, n_clusters, need_classification, labels, consistency)
+        eval_res["cluster-missing"].append(cluster_acc)
+        eval_res["cls-missing"].append(cls_acc)
+
+
+    for i in range(0,10):
         print(f"[Evaluation on {i/10} Salt-Pepper noise]")
         consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device, noise_prob=i/10)
         print('eval on consist...')
-        report(run_times, n_clusters, need_classification, labels, consistency)
-    # print('eval on all concate...')
-    # report(run_times, n_clusters, need_classification, labels, all_concate)
-    # for key in vspecific:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, vspecific[key])
-    #
-    # for key in concate:
-    #     print(f'eval on {key}...')
-    #     report(run_times, n_clusters, need_classification, labels, concate[key])
-        # vspecs1 = []
-        # vspecs2 = []
-        # if config.views == 3:
-        #     vspecs3 = []
-        # for Xs, _ in val_dataloader:
-        #     Xs = [x.to(device) for x in Xs]
-        #     vs = model.vspecific_features(Xs)
-        #     vspecs1.append(vs[0].detach().cpu())
-        #     vspecs2.append(vs[1].detach().cpu())
-        #     if config.views == 3:
-        #         vspecs3.append(vs[2].detach().cpu())
-        #
-        # vspecs1 = torch.vstack(vspecs1).detach().cpu()
-        # vspecs2 = torch.vstack(vspecs2).detach().cpu()
-        # if config.views == 3:
-        #     vspecs3 = torch.vstack(vspecs3).detach().cpu()
-        #
-        # print('Run view specificity 1')
-        # report(run_times, n_clusters, need_classification, labels, vspecs1.numpy())
-        #
-        # print('Run view specificity 2')
-        # report(run_times, n_clusters, need_classification, labels, vspecs2.numpy())
-        #
-        # if config.views == 3:
-        #     print('Run view specificity 3')
-        #     report(run_times, n_clusters, need_classification, labels, vspecs3.numpy())
+        cluster_acc, _, _, cls_acc, _, _ = report(run_times, n_clusters, need_classification, labels, consistency)
+        eval_res["cluster-noise"].append(cluster_acc)
+        eval_res["cls-noise"].append(cls_acc)
+
+    with open(res_path, "w") as file:
+        json.dump(eval_res, file)
 
 
 
