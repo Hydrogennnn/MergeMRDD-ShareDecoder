@@ -200,10 +200,10 @@ def main():
         consistency, vspecific, concate, all_concate, labels = extract_features(mask_train_dataloader, model, device)
         print('eval on consist...')
         cluster_acc, _, _, cls_acc, _, _ = report(run_times, n_clusters, need_classification, labels, consistency)
-        eval_res["cluster-missing-mean"].append(np.mean(cluster_acc))
-        eval_res["cluster-missing-std"].append(np.std(cluster_acc))
-        eval_res["cls-missing-mean"].append(np.mean(cls_acc))
-        eval_res["cls-missing-std"].append(np.std(cls_acc))
+        eval_res["cluster_missing_mean"].append(np.mean(cluster_acc))
+        eval_res["cluster_missing_std"].append(np.std(cluster_acc))
+        eval_res["cls_missing_mean"].append(np.mean(cls_acc))
+        eval_res["cls_missing_std"].append(np.std(cls_acc))
 
 
     for i in range(0,10):
@@ -211,10 +211,10 @@ def main():
         consistency, vspecific, concate, all_concate, labels = extract_features(train_dataloader, model, device, noise_prob=i/10)
         print('eval on consist...')
         cluster_acc, _, _, cls_acc, _, _ = report(run_times, n_clusters, need_classification, labels, consistency)
-        eval_res["cluster-noise-mean"].append(np.mean(cluster_acc))
-        eval_res["cluster-noise-std"].append(np.std(cluster_acc))
-        eval_res["cls-noise-mean"].append(np.mean(cls_acc))
-        eval_res["cls-noise-std"].append(np.std(cls_acc))
+        eval_res["cluster_noise_mean"].append(np.mean(cluster_acc))
+        eval_res["cluster_noise_std"].append(np.std(cluster_acc))
+        eval_res["cls_noise_mean"].append(np.mean(cls_acc))
+        eval_res["cls_noise_std"].append(np.std(cls_acc))
 
     with open(res_path, "w") as file:
         json.dump(eval_res, file)
