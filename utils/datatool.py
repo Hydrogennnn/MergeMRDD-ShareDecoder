@@ -1310,20 +1310,42 @@ def get_mask_val(args, transform):
     return val_set
 
 
+# def add_sp_noise(x, noise_prob):
+#     """
+#     Add Salt-Pepper Noise To Dataset
+#     Params x:Tensor(C,W,H)
+#     """
+#     noise_prob/=2
+#     random_matrix = torch.rand_like(x)
+#     salt_mask = random_matrix > 1.0 - noise_prob
+#     pepper_mask = random_matrix < noise_prob
+#     x[salt_mask] = 1.0
+#     x[pepper_mask] = 0.0
+#
+#     return x
 def add_sp_noise(x, noise_prob):
     """
     Add Salt-Pepper Noise To Dataset
-    Params x:Tensor(C,W,H)
+    Params x: Tensor of shape [b, c, w, h]
+    noise_prob: Probability of salt/pepper noise
     """
-    noise_prob/=2
-    random_matrix = torch.rand_like(x)
-    salt_mask = random_matrix > 1.0 - noise_prob
-    pepper_mask = random_matrix < noise_prob
-    x[salt_mask] = 1.0
-    x[pepper_mask] = 0.0
+    noise_prob /= 2
+    b, c, w, h = x.shape
+
+    # 遍历每个样本，如果该样本全为0，则跳过噪声添加
+    for i in range(b):
+        if torch.all(x[i] == 0):  # 检查该样本是否全为0
+            continue  # 如果全为0，跳过该样本
+
+        random_matrix = torch.rand_like(x[i])  # 生成随机矩阵
+        salt_mask = random_matrix > 1.0 - noise_prob
+        pepper_mask = random_matrix < noise_prob
+
+        # 添加椒盐噪声
+        x[i][salt_mask] = 1.0
+        x[i][pepper_mask] = 0.0
 
     return x
-
 
 class ChannelTransform(object):
     def __init__(self, target_channels):
